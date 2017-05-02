@@ -1,0 +1,39 @@
+//Highligh error from Inbox. It will get the recipient email address from the first thread then search it from this spreadsheet
+
+function getInbox() {
+ var loop;
+ var msgs;
+ var to;
+ // change value 50 to how many thread will inspect
+ for(loop=0;loop<10;loop++){
+   var thread = GmailApp.getInboxThreads(0, 10)[loop];
+   var i;
+   var j;
+   //get the message, 0 is the first message
+   msgs = thread.getMessages()[0];
+   to = msgs.getTo(); 
+   
+   
+   //Get the active spreadsheet data
+   var ss = SpreadsheetApp.getActiveSpreadsheet();
+   var sheet = ss.getActiveSheet();
+   var dataRange = sheet.getDataRange();
+   var values = dataRange.getValues();
+   //Check each cell for the value "to"
+   for (var i = 0; i < values.length; i++) {
+     var row = "";
+     for (var j = 0; j < values[i].length; j++) {     
+       if (values[i][j] == to) {
+         row = values[i][j+1];
+         r = sheet.getRange(i+1, 1,1,sheet.getLastColumn());
+         var x = r.getRow();
+         //Set color
+         r.setBackgroundColor("Red");
+         
+         }
+       }    
+   
+}
+    
+}
+}

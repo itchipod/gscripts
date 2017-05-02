@@ -1,0 +1,120 @@
+function categorize(){
+ var industry = getCategories();
+ var indWithRow = getCategoriesWithRow();
+ var generatedSS = SpreadsheetApp.create("Training Calendar by Industry");
+ var generatedSheet = generatedSS.getActiveSheet();
+ var sourceSS = SpreadsheetApp.getActiveSpreadsheet();
+ var settingsS = sourceSS.getSheetByName("Settings");
+ var targetSheet = settingsS.getRange(1,2).getValue();
+ var sourceS = sourceSS.getSheetByName(targetSheet);
+  for(var ctr=0; ctr< industry.length; ctr++){
+    
+    if(industry[ctr] != ""){
+      generatedSheet.appendRow([" "," "," "]);
+      //generatedSheet.appendRow([findOriginal(categories[ctr]),"",""]);
+      var industrytitle = industry[ctr].split("`");
+      generatedSheet.appendRow(industrytitle);
+      generatedSheet.appendRow(["TITLE","DATE","LOCATION"]);
+      for(var rowIndex=0; rowIndex<indWithRow.length;rowIndex++){
+        var CandR = indWithRow[rowIndex].split("`");
+        var rowContent = [];
+        if(industry[ctr] == CandR[0]){
+         
+          rowContent.push(sourceS.getRange("B"+CandR[1]+":B"+CandR[1]).getValue());
+          var startD = sourceS.getRange("O"+CandR[1]+":O"+CandR[1]).getValues();
+          var endD = sourceS.getRange("P"+CandR[1]+":P"+CandR[1]).getValues();
+          if(startD != "" && endD != ""){
+            if(current_Date("month", startD.toString()) == current_Date("month", endD.toString())){
+              var dateVal = current_Date("numDay", startD.toString())+"-"+current_Date("numDay", endD.toString())+" "+current_Date("month", endD.toString());
+            }else{
+              var dateVal = current_Date("numDay", startD.toString())+" "+current_Date("month", startD.toString())+" - "+current_Date("numDay", endD.toString())+" "+current_Date("month", endD.toString());
+            }
+          }else var dateVal = "";
+          rowContent.push(dateVal);
+          rowContent.push(sourceS.getRange("K"+CandR[1]+":K"+CandR[1]).getValue());
+          generatedSheet.appendRow(rowContent);
+        }
+      }
+    }
+
+}
+
+}
+
+function getCategories() {
+  var sourceSS = SpreadsheetApp.getActiveSpreadsheet();
+  var settingsS = sourceSS.getSheetByName("Settings");
+  var targetSheet = settingsS.getRange(1,2).getValue();
+  var sourceS = sourceSS.getSheetByName(targetSheet);
+  var sourceSVals = sourceS.getRange("G2:G"+sourceS.getLastRow()).getValues(); 
+  var sourceValue = [];
+  for(var counter = 0; counter < sourceSVals.length; counter++){
+    var temp = sourceSVals[counter].toString();
+    sourceValue.push(temp.replace(/\s/g,""));
+  }
+  var uniqueArry = sourceValue.filter(function(elem, pos) {
+        return sourceValue.indexOf(elem) == pos;
+      });
+  var UniqueArry = [];
+  for(var row = 0; row < uniqueArry.length; row++){
+      var ind = uniqueArry[row];
+      var inds = ind.split(";");
+    if((inds.length-1)==0){
+      UniqueArry.push(inds[0]);
+    }if(inds.length-1!=0){
+      for(var ctr=0; ctr<inds.length; ctr++){
+         UniqueArry.push(inds[ctr]);
+      }
+    }
+        
+      }
+  var finaluniqueArry = UniqueArry.filter(function(elem, pos) {
+        return UniqueArry.indexOf(elem) == pos;
+      });
+  
+  return finaluniqueArry;
+}
+  
+  
+function getCategoriesWithRow(){
+  var sourceSS = SpreadsheetApp.getActiveSpreadsheet();
+  var settingsS = sourceSS.getSheetByName("Settings");
+  var targetSheet = settingsS.getRange(1,2).getValue();
+  var sourceS = sourceSS.getSheetByName(targetSheet);
+  var indCol = sourceS.getRange("G1:G"+sourceS.getLastRow()).getValues();
+  var catWithRow = [];
+  for(var row=1; row<indCol.length;row++){
+    var ind = indCol[row][0].replace(/\s/g, "");
+    var inds = ind.split(";");
+    if((inds.length-1)==0){
+      catWithRow.push(inds[0] +"`"+(parseInt(row,10)+1));
+    }if(inds.length-1!=0){
+      for(var ctr=0; ctr<inds.length; ctr++){
+         catWithRow.push(inds[ctr]+"`"+(parseInt(row,10)+1));
+      }
+    }
+  }
+
+  return catWithRow;
+}
+
+function current_Date(variable, date){
+  var current_date = date;
+  var splitted = current_date.split(" ");
+  var temp = "";
+  if(variable=="day"){
+    var temp = splitted[0];
+  }else if(variable == "month"){
+    var temp = splitted[1];
+  }else if(variable == "numDay"){
+    var temp = splitted[2];
+  }
+  return temp;
+}
+
+
+
+
+  
+
+

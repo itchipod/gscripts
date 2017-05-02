@@ -1,0 +1,33 @@
+function caltest3(){
+  //http://www.google.com/google-d-s/scripts/class_calendar.html#getEvents
+  // The code below will retrieve events between 2 dates for the user's default calendar and
+  // display the events the current spreadsheet
+  var calid = "invidaevents.com_l56kb1vnrg4cgev72ip2ijem40@group.calendar.google.com"; // Calendar ID
+  var cal = CalendarApp.getCalendarById(calid); // Get the id of calendar that will be use
+  var sheet = SpreadsheetApp.openByUrl("https://docs.google.com/a/invidaevents.com/spreadsheet/ccc?key=0Ais-pwgMO3SxdDZTc3Myay1MSVo0dnhNaVh6S2laeVE&usp=drive_web#gid=8");
+  var mainSheet = sheet.getSheetByName("2015");
+  var numRows = mainSheet.getMaxRows();
+  //var row2 = 2;
+  for(var row=2;row<numRows;row++)
+  {
+  
+  var range = mainSheet.getRange(row, 1);
+  var status = range.getValue();         
+  range = mainSheet.getRange(row, 6);
+  var id = range.getValue();
+  var events = cal.getEventSeriesById(id);
+  debugger;
+  if(status!="TBA")
+    {
+    var title=events.getTitle();
+    var desc=events.getDescription();
+    var loc=events.getLocation();
+    //var stime=events.getStartTime();
+    //var etime=events.getEndTime();
+    mainSheet.getRange(row, 2).setValue(title);
+    mainSheet.getRange(row, 8).setValue(desc);
+    mainSheet.getRange(row, 11).setValue(loc);
+    }
+    
+  }
+}

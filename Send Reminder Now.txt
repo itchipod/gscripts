@@ -1,0 +1,89 @@
+function current_Date(variable, date){
+  var current_date = date;
+  var splitted = current_date.split(" ");
+  var temp = "";
+  if(variable=="day"){
+    var temp = splitted[0];
+  }else if(variable == "month"){
+    var temp = splitted[1];
+  }else if(variable == "numDay"){
+    var temp = splitted[2];
+  }
+  return temp;
+}
+function test(){
+  var dateToday =  Date().toString();
+  if(current_Date("day", dateToday) == "Mon"){
+    var Monday = current_Date("numDay", dateToday);
+    var current_Month = current_Date("month", dateToday);
+    var daysToCheck =[
+      [current_Month, Monday],
+      [current_Month, parseInt(Monday, 10) + 1],
+      [current_Month, parseInt(Monday, 10) + 2],
+      [current_Month, parseInt(Monday, 10) + 3],
+      [current_Month, parseInt(Monday, 10) + 4]
+    ];
+    var Spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+    var settingsSheet = Spreadsheet.getSheetByName("Settings");
+    var sheetName = settingsSheet.getRange(1, 2).getValue();
+    var sheet = Spreadsheet.getSheetByName(sheetName);
+    var dataArray = sheet.getRange("M2:P"+sheet.getLastRow()).getValues();
+    for (var row = 0; row<dataArray.length; row++){
+     for (var col = 0; col<dataArray[row].length; col++){
+       if(dataArray[row][col].toString() != ""){
+         var month = current_Date("month",dataArray[row][col].toString());
+         var numDay = current_Date("numDay",dataArray[row][col].toString());
+                      for (var rows = 0; rows<daysToCheck.length; rows++){
+                        if(month == daysToCheck[rows][0]){
+                          if(numDay == daysToCheck[rows][1]){
+                            Logger.log(month +" "+numDay);
+                            sendMail(row+2,col);
+                          }
+                        }
+                      }
+       }
+     }
+    }  
+   
+  }
+  
+}
+function sendMail(row,col){
+  var column;
+  if(col==0){
+    column = 13;
+  }else if(col ==1){
+    column = 14;
+  }else if(col ==2){
+    column = 15;
+  }else if(col ==3){
+    column = 16;
+  }
+  var Spreadsheet = SpreadsheetApp.getActiveSpreadsheet()
+  var settingsSheet = Spreadsheet.getSheetByName("Settings");
+  var sheetName = settingsSheet.getRange(1, 2).getValue();
+  var sheet = Spreadsheet.getSheetByName(sheetName);
+  
+  
+  var cellM = current_Date("month",(sheet.getRange(row, column).getValue()).toString());
+  var cellnD = current_Date("numDay",(sheet.getRange(row, column).getValue()).toString());
+  var cell = cellM+" "+cellnD;
+  
+  var startM = current_Date("month",(sheet.getRange(row, 11).getValue()).toString());
+  var startD = current_Date("numDay",(sheet.getRange(row, 11).getValue()).toString());
+  var start = startM+" "+startD;
+  
+  var endM = current_Date("month",(sheet.getRange(row, 12).getValue()).toString());
+  var endD = current_Date("numDay",(sheet.getRange(row, 12).getValue()).toString());
+  var end = endM+" "+endD;
+  
+  var body = "Reminder for "+sheet.getRange(1, column).getValue()+" on "+cell+" for "+sheet.getRange(row, 2).getValue()+" ("+start+"-"+end+") \n \nLINK: "+sheet.getRange(row, 18).getValue();                                      
+  var recipient = settingsSheet.getRange(2,2).getValue();
+  recipient.replace(" ","");
+  var recepients = recipient.split("\;");
+  var subject = "[PRODUCTION REMINDER] "+sheet.getRange(1, column).getValue()+" for "+sheet.getRange(row, 2).getValue();
+  for(var counter = 0 ; counter<recepients.length; counter++){
+   GmailApp.sendEmail(recepients[counter], subject, body, {replyTo:"production@invidaevents.com"});
+  }
+      
+}

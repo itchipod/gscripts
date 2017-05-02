@@ -1,0 +1,139 @@
+function categorize(){
+ var categories = getCategories();
+ var categoriesWithRow = getCategoriesWithRow();
+ var generatedSS = SpreadsheetApp.create("Training Calendar");
+ var generatedSheet = generatedSS.getActiveSheet();
+ var sourceSS = SpreadsheetApp.getActiveSpreadsheet();
+ var settingsS = sourceSS.getSheetByName("Settings");
+ var targetSheet = settingsS.getRange(1,2).getValue();
+ var sourceS = sourceSS.getSheetByName(targetSheet);
+  for(var ctr=0; ctr< categories.length; ctr++){
+    
+    if(categories[ctr] != ""){
+      generatedSheet.appendRow([" "," "," "]);
+      generatedSheet.appendRow([findOriginal(categories[ctr]),"",""]);
+      generatedSheet.appendRow(["TITLE","DATE","LOCATION"]);
+      for(var rowIndex=0; rowIndex<categoriesWithRow.length;rowIndex++){
+        var CandR = categoriesWithRow[rowIndex].split("`");
+        var rowContent = [];
+        if(categories[ctr] == CandR[0]){
+         
+          rowContent.push(sourceS.getRange("B"+CandR[1]+":B"+CandR[1]).getValue());
+          var startD = sourceS.getRange("O"+CandR[1]+":O"+CandR[1]).getValues();
+          var endD = sourceS.getRange("P"+CandR[1]+":P"+CandR[1]).getValues();
+          if(startD != "" && endD != ""){
+            if(current_Date("month", startD.toString()) == current_Date("month", endD.toString())){
+              var dateVal = current_Date("numDay", startD.toString())+"-"+current_Date("numDay", endD.toString())+" "+current_Date("month", endD.toString());
+            }else{
+              var dateVal = current_Date("numDay", startD.toString())+" "+current_Date("month", startD.toString())+" - "+current_Date("numDay", endD.toString())+" "+current_Date("month", endD.toString());
+            }
+          }else var dateVal = "";
+          rowContent.push(dateVal);
+          rowContent.push(sourceS.getRange("K"+CandR[1]+":K"+CandR[1]).getValue());
+          generatedSheet.appendRow(rowContent);
+        }
+      }
+    }
+}
+}
+
+function getCategories() {
+  var sourceSS = SpreadsheetApp.getActiveSpreadsheet();
+  var settingsS = sourceSS.getSheetByName("Settings");
+  var targetSheet = settingsS.getRange(1,2).getValue();
+  var sourceS = sourceSS.getSheetByName(targetSheet);
+  var sourceSVals = sourceS.getRange("H2:H"+sourceS.getLastRow()).getValues(); 
+  var sourceValue = [];
+  for(var counter = 0; counter < sourceSVals.length; counter++){
+    var temp = sourceSVals[counter].toString();
+    sourceValue.push(temp.replace(/\s/g,""));
+  }
+  var uniqueArry = sourceValue.filter(function(elem, pos) {
+        return sourceValue.indexOf(elem) == pos;
+      });
+  var UniqueArry = [];
+  for(var row = 0; row < uniqueArry.length; row++){
+      var category = uniqueArry[row];
+      var categories = category.split(";");
+    if((categories.length-1)==0){
+      UniqueArry.push(categories[0]);
+    }if(categories.length-1!=0){
+      for(var ctr=0; ctr<categories.length; ctr++){
+         UniqueArry.push(categories[ctr]);
+      }
+    }
+        
+      }
+  var finaluniqueArry = UniqueArry.filter(function(elem, pos) {
+        return UniqueArry.indexOf(elem) == pos;
+      });
+  
+  return finaluniqueArry;
+}
+  
+  
+function getCategoriesWithRow(){
+  var sourceSS = SpreadsheetApp.getActiveSpreadsheet();
+  var settingsS = sourceSS.getSheetByName("Settings");
+  var targetSheet = settingsS.getRange(1,2).getValue();
+  var sourceS = sourceSS.getSheetByName(targetSheet);
+  var categoryCol = sourceS.getRange("H1:H"+sourceS.getLastRow()).getValues();
+  var catWithRow = [];
+  for(var row=1; row<categoryCol.length;row++){
+    var category = categoryCol[row][0].replace(/\s/g, "");
+    var categories = category.split(";");
+    if((categories.length-1)==0){
+      catWithRow.push(categories[0] +"`"+(parseInt(row,10)+1));
+    }if(categories.length-1!=0){
+      for(var ctr=0; ctr<categories.length; ctr++){
+         catWithRow.push(categories[ctr]+"`"+(parseInt(row,10)+1));
+      }
+    }
+  }
+
+  return catWithRow;
+}
+
+function current_Date(variable, date){
+  var current_date = date;
+  var splitted = current_date.split(" ");
+  var temp = "";
+  if(variable=="day"){
+    var temp = splitted[0];
+  }else if(variable == "month"){
+    var temp = splitted[1];
+  }else if(variable == "numDay"){
+    var temp = splitted[2];
+  }
+  return temp;
+}
+
+function findOriginal(str){
+  var sourceSS1 = SpreadsheetApp.getActiveSpreadsheet();
+  var settingsS1 = sourceSS1.getSheetByName("Settings");
+  var targetSheet1 = settingsS1.getRange(1,2).getValue();
+  var sourceS1 = sourceSS1.getSheetByName(targetSheet1);
+  var categoryCol2 = sourceS1.getRange("H1:H"+sourceS1.getLastRow()).getValues();
+  var originalform="";
+  for(var counter = 0 ; counter < categoryCol2.length ; counter++){
+    var orig = categoryCol2[counter][0].replace(/\s/g,"");
+    if(str == orig){
+       originalform = categoryCol2[counter];
+    }else{
+      
+      if((categoryCol2[counter][0].replace(/\s/g,"").split(";")).length-1 >= 1){
+          var replaced =  categoryCol2[counter][0].replace(/\s/g,"");
+          var splitted = replaced.split(";");
+        for(var i = 0 ; i<splitted.length; i++){
+          if(splitted[i] == str){
+             var originalsplit = categoryCol2[counter][0].split(";");
+             originalform = originalsplit[i];
+          }
+        }
+      }
+    }
+  }
+  return originalform;
+  
+
+}

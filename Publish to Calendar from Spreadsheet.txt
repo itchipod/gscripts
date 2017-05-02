@@ -1,0 +1,57 @@
+function caltest1() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet();
+  var mainSheet = sheet.getSheetByName("2015");
+  var startRow = 2;  // First row of data to process
+  var numRows = mainSheet.getMaxRows();
+  var headerRows = 1
+  var range = mainSheet.getDataRange();
+  var data = range.getValues();
+  var row2 = 1;
+  var calid = "invidaevents.com_6e957ot5137aani7e8vuqptdps@group.calendar.google.com"; // Calendar ID
+  var cal = CalendarApp.getCalendarById(calid); // Get the id of calendar that will be use
+  for (i in data) {
+    if (i < headerRows) continue; // Skip header row(s)
+    var row = data[i];
+    ;  
+    var title = row[1];           
+    var tstart = row[13]; // Date Start
+    var date = new Date(tstart)
+   
+    //return new Date(tt.getFullYear(), myDate.getMonth(), myDate.getDate());
+    var tstop = row[14]; // Date End
+    var loc = row[9]; 
+    var desc = row[6];
+    var status = row[0];
+    var id = row[4];     // Event ID. Must have to check for duplicate events
+    try {
+                   // Check if event already exists, update it if it does
+                   var event = cal.getEventSeriesById(id);
+                   event.deleteEventSeries();
+                   row[4] = '';  // Remove event ID    
+        }
+   catch (e) {
+  // do nothing - we just want to avoid the exception when event doesn't exist
+        }
+    if(!!tstart)
+      if(!!tstop){
+   if(status!=="TBA"){
+   var newEvent = cal.createEvent(title, new Date(tstart), new Date(tstop), {description:desc, location:loc});
+   row[4] = newEvent.getId();  // Update the data array with event ID
+   debugger;
+    }
+    }
+  }
+  // Record all event IDs to spreadsheet
+  range.setValues(data);
+}
+
+
+
+/**
+Create a tab in the spreadsheet
+**/
+function onOpen() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var menuEntries = [ {name: "Publish to calendar", functionName: "caltest1"} ];
+  ss.addMenu("Publish to Calendar", menuEntries);
+}

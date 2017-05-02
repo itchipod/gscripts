@@ -1,0 +1,262 @@
+/*Returns and filters the current date*/
+function current_Date(variable, date){
+  var current_date = date;
+  var splitted = current_date.split(" ");
+  var temp = "";
+  
+  if(variable=="day"){
+    var temp = splitted[0];
+  }
+  else if(variable == "month"){
+    var temp = splitted[1];
+  }
+  else if(variable == "numDay"){
+    var temp = splitted[2];
+  }
+  return temp;
+}
+
+function main(){
+  
+  var dateToday =  Date().toString();
+  var row2 = 1;
+  if(current_Date("day", dateToday) == "Mon"){
+    // Check days of the week
+    var Monday = current_Date("numDay", dateToday);
+    var current_Month = current_Date("month", dateToday);
+    var daysToCheck =[
+      [current_Month, Monday],
+      [current_Month, parseInt(Monday, 10) + 1],
+      [current_Month, parseInt(Monday, 10) + 2],
+      [current_Month, parseInt(Monday, 10) + 3],
+      [current_Month, parseInt(Monday, 10) + 4],
+      [current_Month, parseInt(Monday, 10) + 5],
+      [current_Month, parseInt(Monday, 10) + 6]
+    ];
+    
+    var Spreadsheet = SpreadsheetApp.getActiveSpreadsheet(); // Get the opened spreadsheet
+    var settingsSheet = Spreadsheet.getSheetByName("Settings");
+    var sheetName = settingsSheet.getRange(1,2).getValue();
+    var sheet = Spreadsheet.getSheetByName(sheetName);
+    var dataArray = sheet.getRange("N2:AK" + sheet.getLastRow()).getValues(); //set the range to check for dates!
+    var mainSheet = Spreadsheet.getSheetByName("2015"); 
+    //check each row
+    for (var row = 0; row<dataArray.length; row++){
+      //iterate through each column
+      for (var col = 0; col<dataArray[row].length; col++){
+        //check if has a value
+        if(dataArray[row][col].toString() != ""){
+          var month = current_Date("month",dataArray[row][col].toString()); 
+          var numDay = current_Date("numDay",dataArray[row][col].toString()); 
+          
+          for (var rows = 0; rows<daysToCheck.length; rows++){
+            if(month == daysToCheck[rows][0]){
+              if(numDay == daysToCheck[rows][1]){
+                Logger.log(month +" "+ numDay);
+                row2++;
+                var range = mainSheet.getRange(row2,1);//get the cell object of column 1
+                var range2 = mainSheet.getRange(row2,15);//get the cell object of column 14
+                var status = range.getValue();//get the values of column 1
+                var getdate = range2.getValue();// get the values of column 14
+// check if start date has value
+                if(!!getdate)
+                {/* Check status if Cancelled , finished or TBA*/
+                if(status!=="Cancelled")
+                {
+                  if(status!=="Finished")
+                    if(status!=="TBA")
+                      sendMail(row+2,col);
+                }
+                }
+              }
+            }
+          }
+          
+        }
+      }
+      
+    }
+    
+  }
+}
+
+function sendMail(row,col){
+var column;
+  
+  switch(col){
+  
+    case 0:column = 13;
+      break;
+    case 1:column = 14;
+      break;
+    case 2:column = 15;
+      break;
+    case 3:column = 16;
+      break;
+    case 4:column = 17;
+      break;
+    case 5:column = 18;
+      break;
+    case 6:column = 19;
+      break;
+    case 7:column = 20;
+      break;
+    case 8:column = 21;
+      break;
+    case 9:column = 22;
+      break;
+    case 10:column = 23;
+      break;
+    case 11:column = 24;
+      break;
+    case 12:column = 25;
+      break;
+    case 13:column = 26;
+      break;
+    case 14:column = 27;
+      break;
+    case 15:column = 28;
+      break;
+    case 16:column = 29;
+      break;
+    case 17:column = 30;
+      break;
+    case 18:column = 31;
+      break;
+    case 19:column = 32;
+      break;
+    case 20:column = 33;
+      break;
+    case 21:column = 34;
+      break;
+    case 22:column = 35;
+      break;
+    case 23:column = 36;
+      break;
+  }
+//  if(col==0){
+//    column = 13;
+//  }
+//  else if(col==1){
+//    column = 14;
+//  }
+//  else if(col==2){
+//    column = 15;
+//  }
+//  else if(col==3){
+//    column = 16;
+//  }
+//  else if(col==4){
+//    column = 17;
+//  }
+//  else if(col==5){
+//    column = 18;
+//  }
+//  else if(col==6){
+//    column = 19;
+//  }
+//  else if(col==7){
+//    column = 20;
+//  }
+//  else if(col==8){
+//    column = 21;
+//  }
+//  else if(col==9){
+//    column = 22;
+//  }
+//  else if(col==10){
+//    column = 23;
+//  }
+//  else if(col==11){
+//    column = 24;
+//  }
+//  else if(col==12){
+//    column = 25;
+//  }
+//  else if(col==13){
+//    column = 26;
+//  }
+//  else if(col==14){
+//    column = 27;
+//  }
+//  else if(col ==15){
+//    column = 28;
+//  }
+//  else if(col==16){
+//    column = 29;
+//  }
+//  else if(col==17){
+//    column = 30;
+//  }
+//  else if(col==18){
+//    column = 31;
+//  }
+//  else if(col==19){
+//    column = 32;
+//  }
+//  else if(col==20){
+//    column = 33;
+//  }
+//  else if(col==21){
+//    column = 34;
+//  }
+//  else if(col==22){
+//    column = 35;
+//  }
+//  else if(col==23){
+//    column = 36;
+//  }
+  //Get the active spreadsheet
+  var Spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var settingsSheet = Spreadsheet.getSheetByName("Settings");
+  var sheetName = settingsSheet.getRange(1, 2).getValue();
+  var sheet = Spreadsheet.getSheetByName(sheetName);
+  
+  var cellM = current_Date("month",(sheet.getRange(row, column).getValue()).toString());
+  var cellnD = current_Date("numDay",(sheet.getRange(row, column).getValue()).toString());
+  var cell = cellM+" "+cellnD; //nearest date from today
+  //Gets the current date
+  var startM = current_Date("month",(sheet.getRange(row, 15).getValue()).toString());
+  var startD = current_Date("numDay",(sheet.getRange(row, 15).getValue()).toString());
+  var start = startM+" "+startD;
+  
+  var endM = current_Date("month",(sheet.getRange(row, 16).getValue()).toString());
+  var endD = current_Date("numDay",(sheet.getRange(row, 16).getValue()).toString());
+  var end = endM+" "+endD;
+  //Writes the body of the email
+  var body = 
+      "=========\nEVENT TITLE:"+sheet.getRange(row, 2).getValue()+
+      "\nTRAINER: "+sheet.getRange(row,13).getValue()+
+      "\nLOCATION: "+sheet.getRange(row, 11).getValue()+
+      "\nSTART DATE: "+start+ 
+      "\nEND DATE: "+end+
+      "\nMARKETING: "+sheet.getRange(row, 3).getValue()+
+      "\nPRODUCER: "+sheet.getRange(row,4).getValue()+
+      "\n\nSTATUS: "+sheet.getRange(row,1).getValue()+"\n==========";
+  
+//  var subject = sheet.getRange(1, column).getValue()+" for "+sheet.getRange(row, 2).getValue();
+//  GmailApp.sendEmail("acauso@invidaevents.com", subject, body, {replyTo:"production@invidaevents.com"});
+  
+   //Check and get the value of the recipient from the settings
+    var recipient = settingsSheet.getRange(2,2).getValue();
+    recipient.replace(" ","");
+    var recepients = recipient.split("\;");
+    var subject = sheet.getRange(1, column).getValue()+" for "+sheet.getRange(row, 2).getValue();
+     
+  
+    for(var counter = 0 ; counter<recepients.length; counter++){
+      if(sheet.getRange(1, column).getValue() == "Date (Start)" || sheet.getRange(1, column).getValue() == "Date (End)"){
+        continue;
+      }
+      //Send mail to recipient from settings
+                  GmailApp.sendEmail(recepients[counter], subject, body, {replyTo:"production@invidaevents.com"});
+                
+    }
+}
+
+
+
+
+
+
+//production@invidaevents.com, marketing@invidaevents.com, acauso@invidaevents.com

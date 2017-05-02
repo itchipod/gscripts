@@ -1,0 +1,36 @@
+// Trigger which automate the quarter everytime the document is edited, is at the resources. 
+/**
+ * Retrieves all the rows in the active spreadsheet that contain data and get the
+ * values for each row.
+sheet
+
+ */ 
+
+function readRows() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet(); // get the opened spreadsheet
+  var mainSheet = sheet.getSheetByName("2015");
+  //var rows = sheet.getDataRange();
+  var numRows = mainSheet.getMaxRows(); // get the number of all the rows regardless of value
+  /*Iterate through each row of month*/
+  for(var rows=1;rows<=numRows;rows++)
+   {
+     var range = mainSheet.getRange(rows,9);
+     var month = range.getValue();  
+     /* Get month value and change it */
+     if(/Jan/.test(month)==true || /Feb/.test(month)==true || /Mar/.test(month)==true)
+       mainSheet.getRange(rows, 9).setValue('Q1');
+     
+     else if(/Apr/.test(month)==true || /May/.test(month)==true || /Jun/.test(month)==true)
+       mainSheet.getRange(rows, 9).setValue('Q2');
+     
+     else if(/Jul/.test(month)==true || /Aug/.test(month)==true || /Sep/.test(month)==true)
+       mainSheet.getRange(rows, 9).setValue('Q3');
+     
+     else if(/Oct/.test(month)==true || /Nov/.test(month)==true || /Dec/.test(month)==true)
+       mainSheet.getRange(rows, 9).setValue('Q4');
+     
+   
+  }
+};
+
+
